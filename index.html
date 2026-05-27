@@ -120,31 +120,14 @@
 
 <!-- SCORE PAGE -->
 <div id="page-score" class="page active">
-  <!-- Firebase config notice — hidden once configured -->
-  <div id="firebaseSetup" class="section" style="padding-top:14px">
-    <div class="firebase-setup">
-      <h3>⚙️ One-time Firebase Setup Required</h3>
-      <p>To sync live scores across all phones, you need a <strong>free Firebase project</strong>. This takes 3 minutes and costs nothing.</p>
-      <p><span class="step-num">1</span> Go to <strong>console.firebase.google.com</strong> → Create project</p>
-      <p><span class="step-num">2</span> Add a <strong>Web app</strong> → copy the config values below</p>
-      <p><span class="step-num">3</span> Go to <strong>Firestore Database</strong> → Create database → Start in <strong>test mode</strong></p>
-      <p style="margin-top:6px"><strong>Paste your Firebase config values:</strong></p>
-      <input id="fbApiKey" placeholder="apiKey" />
-      <input id="fbProjectId" placeholder="projectId" />
-      <input id="fbAppId" placeholder="appId" />
-      <button class="btn btn-green" onclick="saveFirebaseConfig()" style="font-size:14px;padding:10px">Save & Connect to Firebase</button>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px">Config is saved on this device. Other phones need their own setup once.</p>
-    </div>
-  </div>
-
-  <div id="setup" class="section hidden">
+  <div id="setup" class="section">
     <div style="height:14px"></div>
     <div class="card">
       <div class="card-title">Match Setup</div>
       <label>Team 1 Captain (Team Name)</label>
-      <input id="cap1" type="text" placeholder="e.g. z1 Phantoms" />
+      <input id="cap1" type="text" placeholder="e.g. Rohit XI" />
       <label>Team 2 Captain (Team Name)</label>
-      <input id="cap2" type="text" placeholder="e.g. z1 Strikers" />
+      <input id="cap2" type="text" placeholder="e.g. Virat XI" />
       <label>Overs per Innings</label>
       <div class="stepper">
         <button class="stepper-btn" onclick="stepOvers(-1)">−</button>
@@ -195,7 +178,7 @@
       <div class="extra-grid">
         <button class="run-btn rWB" onclick="openExtraPanel('WB')">WB</button>
         <button class="run-btn rNB" onclick="openExtraPanel('NB')">NB</button>
-        <button class="run-btn rB"  onclick="openExtraPanel('B')">By</button>
+        <button class="run-btn rB"  onclick="openExtraPanel('B')">B</button>
         <button class="run-btn rLb" onclick="openExtraPanel('Lb')">Lb</button>
       </div>
       <div class="extra-panel" id="panel-WB">
@@ -357,31 +340,14 @@
 
 <script type="module">
 // ============================================================
-//  FIREBASE REALTIME SYNC — using REST API (no SDK needed)
-//  Works with any Firebase Firestore project in test mode
+//  FIREBASE REALTIME SYNC — config hardcoded, works on all phones
 // ============================================================
 
-// ---- Firebase config (stored in localStorage per device) ----
-let FB = null; // { apiKey, projectId, appId }
-
-function loadFbConfig(){
-  try{ FB = JSON.parse(localStorage.getItem('cs_fb')||'null'); }catch(e){}
-}
-function saveFbConfig(){ localStorage.setItem('cs_fb', JSON.stringify(FB)); }
-
-window.saveFirebaseConfig = function(){
-  const apiKey = document.getElementById('fbApiKey').value.trim();
-  const projectId = document.getElementById('fbProjectId').value.trim();
-  const appId = document.getElementById('fbAppId').value.trim();
-  if(!apiKey||!projectId){alert('Please enter at least apiKey and projectId');return}
-  FB = {apiKey, projectId, appId};
-  saveFbConfig();
-  document.getElementById('firebaseSetup').classList.add('hidden');
-  document.getElementById('setup').classList.remove('hidden');
-  setSyncBadge('ok','✓ Firebase connected');
-  loadRemoteState();
-  startListening();
-}
+const FB = {
+  apiKey:    "AIzaSyDzL3iRlYEq2ePZadt6lhyq2y9YzmvXhG0",
+  projectId: "anything-92cec",
+  appId:     "1:323897743377:web:c3c691f588c26d7f90b9b0"
+};
 
 function setSyncBadge(cls, txt){
   const b = document.getElementById('syncBadge');
@@ -937,13 +903,11 @@ window.showPage = function(p){
 function afterStateLoad(){
   if(state.active){
     document.getElementById('setup').classList.add('hidden');
-    document.getElementById('firebaseSetup').classList.add('hidden');
     document.getElementById('scorer').classList.remove('hidden');
     document.getElementById('liveIndicator').style.display='inline-flex';
     render();
-  } else if(FB){
+  } else {
     document.getElementById('setup').classList.remove('hidden');
-    document.getElementById('firebaseSetup').classList.add('hidden');
     document.getElementById('scorer').classList.add('hidden');
     document.getElementById('liveIndicator').style.display='none';
     renderLive();
@@ -951,13 +915,8 @@ function afterStateLoad(){
 }
 
 // ---- Init ----
-loadFbConfig();
-if(FB){
-  document.getElementById('firebaseSetup').classList.add('hidden');
-  document.getElementById('setup').classList.remove('hidden');
-  setSyncBadge('','⟳ Connecting');
-  loadRemoteState().then(()=>startListening());
-}
+setSyncBadge('','⟳ Connecting');
+loadRemoteState().then(()=>startListening());
 renderHistory();
 </script>
 </body>
